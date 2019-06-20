@@ -3,6 +3,10 @@
 /**
  * 数据操作类
  */
+
+
+require('MMysql.php');
+
 class Request
 {
     //允许的请求方式
@@ -13,6 +17,14 @@ class Request
         2 => array('name' => '雅思班', 'count' => 20),
     );
 
+    private static $configArr = array(
+        'host'=>'localhost',
+        'port'=>'3306',
+        'user'=>'root',
+        'passwd'=>'123',
+        'dbname'=>'myblog'
+        );
+//获取数据
     public static function getRequest()
     {
         //请求方式
@@ -40,10 +52,13 @@ class Request
     //POST /class：新建一个班
     private static function postData($request_data)
     {
+        $mysql = new MMysql(self::$configArr);
+
         if (!empty($request_data['name'])) {
             $data['name'] = $request_data['name'];
-            $data['count'] = (int)$request_data['count'];
+            $data['pwd'] = $request_data['pwd'];
             self::$test_class[] = $data;
+            $mysql->insert('user',$data);
             return self::$test_class;//返回新生成的资源对象
         } else {
             return false;

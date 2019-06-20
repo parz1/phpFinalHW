@@ -13,17 +13,6 @@ require('Request.php');
 //输出类
 require('Response.php');
 
-require('MMysql.php');
-
-$configArr = array(
-    'host'=>'localhost',
-    'port'=>'3306',
-    'user'=>'root',
-    'passwd'=>'123',
-    'dbname'=>'myblog'
-);
-//获取数据
-$mysql = new MMysql($configArr);
 $data = Request::getRequest();
 //输出结果
 Response::sendResponse($data);
