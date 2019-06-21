@@ -49,7 +49,7 @@ class Request
         }
     }
 
-    //POST /class：新建一个班
+    //POST /class：新建一个账户
     private static function postData($request_data)
     {
         $mysql = new MMysql(self::$configArr);
@@ -59,7 +59,10 @@ class Request
             $data['pwd'] = $request_data['pwd'];
             self::$test_class[] = $data;
             $mysql->insert('user',$data);
-            return self::$test_class;//返回新生成的资源对象
+            $res = $mysql->field(array('id','name'))
+                ->where('id=3')
+                ->select('user');
+            return $res;//返回新生成的资源对象
         } else {
             return false;
         }
