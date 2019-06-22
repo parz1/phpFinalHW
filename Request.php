@@ -40,75 +40,81 @@ class Request
     //GET 获取信息
     private static function getData($request_data)
     {
-        $class_id = (int)$request_data['class'];
-        //GET /class/ID：获取某个指定班的信息
-        if ($class_id > 0) {
-            return self::$test_class[$class_id];
-        } else {//GET /class：列出所有班级
-            return self::$test_class;
+        $mysql = new MMysql(self::$configArr);
+        $type = $request_data['type'];
+        if ($type == 0) {
+            $data = $mysql->field(array('comment','userid','id'))
+                ->select('comment');
+            return $data;
+        } elseif ($request_data['userid']) {
+            $userid = $request_data['userid'];
+            $data = $mysql->field(array('comment','id'))
+                ->where('userid=' . $userid)
+                ->select('comment');
+            return $data;
+        }
+        else {
+            $res = array('state'=>'err');
+            return $res;
         }
     }
 
-    //POST /class：新建一个账户
+    //POST
     private static function postData($request_data)
     {
         $mysql = new MMysql(self::$configArr);
-
-        if (!empty($request_data['name'])) {
+        $type = $request_data['type'];
+        if($type == 0){
+            if (!empty($request_data['name'])) {
+                $data['name'] = $request_data['name'];
+                $data['pwd'] = $request_data['pwd'];
+                $mysql->insert('user',$data);
+                $res  = array('state'=>'success');
+                return $res;//返回新生成的资源对象
+            } else {
+                return false;
+            }
+        }
+        elseif ($type == 1){
+            $data['comment'] = $request_data['comment'];
+            $data['userid'] = $request_data['userid'];
+            $data['date'] = date('Y-m-d H:i:s');
+             $mysql->insert('comment',$data);
+             return $data;
+        }
+        else {
             $data['name'] = $request_data['name'];
             $data['pwd'] = $request_data['pwd'];
-            self::$test_class[] = $data;
-            $mysql->insert('user',$data);
-            $res  = $mysql->field(array('name','pwd'))
+            $res = $mysql->field(array('pwd'))
+                ->where('name=\'' . $data['name'] . '\'')
                 ->select('user');
-            return $res;//返回新生成的资源对象
-        } else {
-            return false;
+            if($res[0]['pwd']==$data['pwd']){
+                return array('state'=>'success');
+            }
+            else{
+                return array('state'=>'err');
+            }
         }
+
     }
 
-    //PUT /class/ID：更新某个指定班的信息（全部信息）
-    private static function putData($request_data)
-    {
-        $class_id = (int)$request_data['class'];
-        if ($class_id == 0) {
-            return false;
-        }
-        $data = array();
-        if (!empty($request_data['name']) && isset($request_data['count'])) {
-            $data['name'] = $request_data['name'];
-            $data['count'] = (int)$request_data['count'];
-            self::$test_class[$class_id] = $data;
-            return self::$test_class;
-        } else {
-            return false;
-        }
-    }
 
-    //PATCH /class/ID：更新某个指定班的信息（部分信息）
+    //PATCH
     private static function patchData($request_data)
     {
-        $class_id = (int)$request_data['class'];
-        if ($class_id == 0) {
-            return false;
-        }
-        if (!empty($request_data['name'])) {
-            self::$test_class[$class_id]['name'] = $request_data['name'];
-        }
-        if (isset($request_data['count'])) {
-            self::$test_class[$class_id]['count'] = (int)$request_data['count'];
-        }
-        return self::$test_class;
+        $mysql = new MMysql(self::$configArr);
+        $userid = $request_data['userid'];
+        $pwd = $request_data['pwd'];
+        $mysql->where(array('id'=>$userid))->update('user',array('pwd'=>$pwd));
+        return array('state'=>'success');
     }
 
-    //DELETE /class/ID：删除某个班
+    //DELETE
     private static function deleteData($request_data)
     {
-        $class_id = (int)$request_data['class'];
-        if ($class_id == 0) {
-            return false;
-        }
-        unset(self::$test_class[$class_id]);
-        return self::$test_class;
+        $mysql = new MMysql(self::$configArr);
+        $commentid = (int)$request_data['commentid'];
+        $mysql->where(array('id'=>$commentid))->delete('comment');
+        return array('state'=>'success');
     }
 }
