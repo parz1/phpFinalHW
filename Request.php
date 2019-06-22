@@ -59,8 +59,7 @@ class Request
             $data['pwd'] = $request_data['pwd'];
             self::$test_class[] = $data;
             $mysql->insert('user',$data);
-            $res = $mysql->field(array('id','name'))
-                ->where('id=3')
+            $res  = $mysql->field(array('name','pwd'))
                 ->select('user');
             return $res;//返回新生成的资源对象
         } else {
