@@ -4,7 +4,7 @@ Final work of school class.
 虽然这个RESTful有点畸形，但还是可以这样写成一套简单的api
 
 
-###**接口如下**
+### 接口如下
 **`GET` : phpFinalHW/class**
 获取所有comment
 
